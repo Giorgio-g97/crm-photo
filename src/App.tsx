@@ -9,6 +9,8 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard"; // Import Dashboard
 import Customers from "./pages/Customers"; // Import Customers
 import Deals from "./pages/Deals"; // Import Deals
+import PublicForm from "./pages/PublicForm"; // Import PublicForm
+import Services from "./pages/Services"; // Import Services
 
 const queryClient = new QueryClient();
 
@@ -18,16 +20,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout> {/* Wrap routes with Layout */}
-          <Routes>
+        <Routes>
+          <Route path="/public-form" element={<PublicForm />} /> {/* Public Form route, outside Layout */}
+          <Route element={<Layout />}> {/* Wrap admin routes with Layout */}
             <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} /> {/* New CRM Dashboard route */}
-            <Route path="/customers" element={<Customers />} /> {/* New CRM Customers route */}
-            <Route path="/deals" element={<Deals />} /> {/* New CRM Deals route */}
+            <Route path="/dashboard" element={<Dashboard />} /> {/* CRM Dashboard route */}
+            <Route path="/customers" element={<Customers />} /> {/* CRM Customers route */}
+            <Route path="/deals" element={<Deals />} /> {/* CRM Deals route */}
+            <Route path="/services" element={<Services />} /> {/* CRM Services route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+          </Route>
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

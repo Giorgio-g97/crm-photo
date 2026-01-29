@@ -2,7 +2,7 @@
 
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Handshake } from "lucide-react";
+import { LayoutDashboard, Users, Handshake, Settings } from "lucide-react"; // Added Settings icon
 import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
@@ -21,6 +21,11 @@ const Sidebar = () => {
       name: "Deals",
       icon: Handshake,
       path: "/deals",
+    },
+    {
+      name: "Services", // New item for Services
+      icon: Settings, // Using Settings icon for Services
+      path: "/services",
     },
   ];
 
