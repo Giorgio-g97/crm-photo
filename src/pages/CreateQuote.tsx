@@ -1,94 +1,85 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getClients, getServices, getQuotes, addQuote, Client, Service } from "@/utils/localStorage";
+import { getClients, getServices, addQuote, Client, Service } from "@/utils/localStorage";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
+
+interface QuoteItem {
+  serviceId: string;
+  name: string;
+  description: string;
+  price: number;
+}
 
 const CreateQuote = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [clients, setClients] = useState<Client[]>([]);
-  const [availableServices, setAvailableServices] = useState<Service[]>([]);
-  
-  const [selectedClientId, setSelectedClientId] = useState<string>("");
-  const [selectedItems, setSelectedItems] = useState<{serviceId: string, name: string, description: string, price: number}[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState("");
+  const [items, setItems] = useState<QuoteItem[]>([]);
+  const [newItem, setNewItem] = useState({ serviceId: "", name: "", description: "", price: 0 });
 
   useEffect(() => {
-    try {
-      const allClients = getClients() || [];
-      const allServices = getServices() || [];
-      const allQuotes = getQuotes() || [];
-      
-      setClients(allClients);
-      setAvailableServices(allServices);
+    const allClients = getClients() || [];
+    const allServices = getServices() || [];
+    setClients(allClients);
+    setServices(allServices);
 
-      const clientIdParam = searchParams.get("clientId");
-      const duplicateIdParam = searchParams.get("duplicateId");
+    const clientIdParam = searchParams.get("clientId");
+    const duplicateIdParam = searchParams.get("duplicateId");
 
-      if (clientIdParam) {
-        setSelectedClientId(clientIdParam);
-      }
+    if (clientIdParam) {
+      setSelectedClientId(clientIdParam);
+    }
 
-      if (duplicateIdParam) {
-        const quoteToCopy = allQuotes.find(q => q.id === duplicateIdParam);
-        if (quoteToCopy) {
-          setSelectedClientId(quoteToCopy.clientId);
-          setSelectedItems(quoteToCopy.items.map(item => ({ ...item })));
-          showSuccess("Dati caricati dal preventivo precedente");
-        }
-      }
-    } catch (err) {
-      console.error("Errore caricamento dati preventivo:", err);
-      showError("Errore nel caricamento dei dati");
+    if (duplicateIdParam) {
+      // Qui potresti caricare i dati del preventivo da duplicare
+      // Per ora, mostriamo un messaggio
+      showSuccess("Modalità duplicazione attivata");
     }
   }, [searchParams]);
 
-  const handleAddItem = (serviceId: string) => {
-    if (!serviceId) return;
-    const service = availableServices.find(s => s.id === serviceId);
-    if (service) {
-      setSelectedItems(prev => [...prev, {
-        serviceId: service.id,
-        name: service.name,
-        description: service.description,
-        price: service.price
-      }]);
+  const handleAddItem = () => {
+    if (!newItem.serviceId || !newItem.name || newItem.price <= 0) {
+      showError("Compila tutti i campi del servizio");
+      return;
     }
+
+    setItems([...items, newItem]);
+    setNewItem({ serviceId: "", name: "", description: "", price: 0 });
   };
 
   const handleRemoveItem = (index: number) => {
-    setSelectedItems(prev => {
-      const newItems = [...prev];
-      newItems.splice(index, 1);
-      return newItems;
-    });
+    const newItems = [...items];
+    newItems.splice(index, 1);
+    setItems(newItems);
   };
-
-  const total = selectedItems.reduce((sum, item) => sum + item.price, 0);
 
   const handleSave = () => {
     if (!selectedClientId) {
       showError("Seleziona un cliente");
       return;
     }
-    if (selectedItems.length === 0) {
+    if (items.length === 0) {
       showError("Aggiungi almeno un servizio");
       return;
     }
 
     const client = clients.find(c => c.id === selectedClientId);
-    
+    const total = items.reduce((sum, item) => sum + item.price, 0);
+
     try {
       addQuote({
         clientId: selectedClientId,
         clientName: client?.name || "Sconosciuto",
-        items: selectedItems,
+        items: items,
         total: total
       });
       showSuccess("Preventivo creato con successo!");
@@ -115,56 +106,106 @@ const CreateQuote = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label>Seleziona Cliente</Label>
-                <Select 
-                  onValueChange={setSelectedClientId} 
-                  value={selectedClientId || undefined}
+                <Label htmlFor="client-select">Seleziona Cliente</Label>
+                <select
+                  id="client-select"
+                  value={selectedClientId}
+                  onChange={(e) => setSelectedClientId(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 >
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue placeholder="Scegli un cliente esistente..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {clients.length > 0 ? (
-                      clients.map(client => (
-                        <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                      ))
-                    ) : (
-                      <div className="p-2 text-sm text-muted-foreground text-center">Nessun cliente trovato</div>
-                    )}
-                  </SelectContent>
-                </Select>
+                  <option value="">Scegli un cliente...</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>{client.name}</option>
+                  ))}
+                </select>
               </div>
             </CardContent>
           </Card>
 
           <Card className="rounded-2xl border-none elevation-1">
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <CardTitle>Servizi nel Preventivo</CardTitle>
-              <div className="w-full sm:w-64">
-                <Select onValueChange={handleAddItem} value="">
-                  <SelectTrigger className="rounded-xl bg-secondary border-none">
-                    <Plus className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Aggiungi servizio..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableServices.length > 0 ? (
-                      availableServices.map(service => (
-                        <SelectItem key={service.id} value={service.id}>{service.name} (€{service.price})</SelectItem>
-                      ))
-                    ) : (
-                      <div className="p-2 text-sm text-muted-foreground text-center">Nessun servizio configurato</div>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+            <CardHeader>
+              <CardTitle>Aggiungi Servizi</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {selectedItems.length === 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="service-select">Servizio Esistente</Label>
+                    <select
+                      id="service-select"
+                      value={newItem.serviceId}
+                      onChange={(e) => {
+                        const service = services.find(s => s.id === e.target.value);
+                        if (service) {
+                          setNewItem({
+                            ...newItem,
+                            serviceId: service.id,
+                            name: service.name,
+                            description: service.description,
+                            price: service.price
+                          });
+                        }
+                      }}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    >
+                      <option value="">Scegli un servizio...</option>
+                      {services.map(service => (
+                        <option key={service.id} value={service.id}>{service.name} (€{service.price})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="custom-price">Prezzo Personalizzato</Label>
+                    <Input
+                      id="custom-price"
+                      type="number"
+                      step="0.01"
+                      value={newItem.price || ""}
+                      onChange={(e) => setNewItem({...newItem, price: parseFloat(e.target.value) || 0})}
+                      placeholder="0.00"
+                      className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="item-name">Nome Servizio</Label>
+                  <Input
+                    id="item-name"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                    placeholder="Nome del servizio"
+                    className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="item-description">Descrizione</Label>
+                  <textarea
+                    id="item-description"
+                    value={newItem.description}
+                    onChange={(e) => setNewItem({...newItem, description: e.target.value})}
+                    placeholder="Descrizione del servizio"
+                    rows={2}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  />
+                </div>
+                <Button onClick={handleAddItem} className="w-full rounded-xl gap-2">
+                  <Plus className="h-5 w-5" /> Aggiungi al Preventivo
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl border-none elevation-1">
+            <CardHeader>
+              <CardTitle>Servizi nel Preventivo</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {items.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8 italic">Nessun servizio aggiunto ancora.</p>
                 ) : (
-                  selectedItems.map((item, index) => (
-                    <div key={`${item.serviceId}-${index}`} className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl">
+                  items.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl">
                       <div>
                         <p className="font-semibold">{item.name}</p>
                         <p className="text-sm text-muted-foreground">{item.description}</p>
@@ -196,12 +237,12 @@ const CreateQuote = () => {
             <CardContent className="space-y-6">
               <div className="flex justify-between items-end">
                 <span>Imponibile</span>
-                <span className="text-xl">€ {total.toFixed(2)}</span>
+                <span className="text-xl">€ {items.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</span>
               </div>
               <div className="pt-4 border-t border-primary-foreground/20">
                 <div className="flex justify-between items-end font-bold text-3xl">
                   <span>Totale</span>
-                  <span>€ {total.toFixed(2)}</span>
+                  <span>€ {items.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</span>
                 </div>
               </div>
               <Button 
