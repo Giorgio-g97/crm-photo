@@ -47,12 +47,19 @@ const CreateQuote = () => {
   }, [searchParams]);
 
   const handleAddItem = () => {
-    if (!newItem.serviceId || !newItem.name || newItem.price <= 0) {
-      showError("Compila tutti i campi del servizio");
+    if (!newItem.name || newItem.price <= 0) {
+      showError("Compila nome e prezzo del servizio");
       return;
     }
 
-    setItems([...items, newItem]);
+    const itemToAdd: QuoteItem = {
+      serviceId: newItem.serviceId || crypto.randomUUID(),
+      name: newItem.name,
+      description: newItem.description,
+      price: newItem.price
+    };
+
+    setItems([...items, itemToAdd]);
     setNewItem({ serviceId: "", name: "", description: "", price: 0 });
   };
 
@@ -85,7 +92,8 @@ const CreateQuote = () => {
       showSuccess("Preventivo creato con successo!");
       navigate("/quotes");
     } catch (e) {
-      showError("Errore nel salvataggio del preventivo");
+      console.error("Errore salvataggio:", e);
+      showError("Errore durante il salvataggio del preventivo");
     }
   };
 
@@ -138,7 +146,6 @@ const CreateQuote = () => {
                         const service = services.find(s => s.id === e.target.value);
                         if (service) {
                           setNewItem({
-                            ...newItem,
                             serviceId: service.id,
                             name: service.name,
                             description: service.description,
@@ -160,6 +167,7 @@ const CreateQuote = () => {
                       id="custom-price"
                       type="number"
                       step="0.01"
+                      min="0"
                       value={newItem.price || ""}
                       onChange={(e) => setNewItem({...newItem, price: parseFloat(e.target.value) || 0})}
                       placeholder="0.00"
