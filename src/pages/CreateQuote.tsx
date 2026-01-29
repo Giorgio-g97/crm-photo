@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, ArrowLeft, Save, Copy } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Save } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
 
@@ -16,39 +16,44 @@ const CreateQuote = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [availableServices, setAvailableServices] = useState<Service[]>([]);
   
-  const [selectedClientId, setSelectedClientId] = useState("");
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
   const [selectedItems, setSelectedItems] = useState<{serviceId: string, name: string, description: string, price: number}[]>([]);
 
   useEffect(() => {
-    const allClients = getClients();
-    const allServices = getServices();
-    const allQuotes = getQuotes();
-    
-    setClients(allClients);
-    setAvailableServices(allServices);
+    try {
+      const allClients = getClients() || [];
+      const allServices = getServices() || [];
+      const allQuotes = getQuotes() || [];
+      
+      setClients(allClients);
+      setAvailableServices(allServices);
 
-    // Gestione parametri URL
-    const clientIdParam = searchParams.get("clientId");
-    const duplicateIdParam = searchParams.get("duplicateId");
+      const clientIdParam = searchParams.get("clientId");
+      const duplicateIdParam = searchParams.get("duplicateId");
 
-    if (clientIdParam) {
-      setSelectedClientId(clientIdParam);
-    }
-
-    if (duplicateIdParam) {
-      const quoteToCopy = allQuotes.find(q => q.id === duplicateIdParam);
-      if (quoteToCopy) {
-        setSelectedClientId(quoteToCopy.clientId);
-        setSelectedItems(quoteToCopy.items.map(item => ({ ...item })));
-        showSuccess("Dati caricati dal preventivo precedente");
+      if (clientIdParam) {
+        setSelectedClientId(clientIdParam);
       }
+
+      if (duplicateIdParam) {
+        const quoteToCopy = allQuotes.find(q => q.id === duplicateIdParam);
+        if (quoteToCopy) {
+          setSelectedClientId(quoteToCopy.clientId);
+          setSelectedItems(quoteToCopy.items.map(item => ({ ...item })));
+          showSuccess("Dati caricati dal preventivo precedente");
+        }
+      }
+    } catch (err) {
+      console.error("Errore caricamento dati preventivo:", err);
+      showError("Errore nel caricamento dei dati");
     }
   }, [searchParams]);
 
   const handleAddItem = (serviceId: string) => {
+    if (!serviceId) return;
     const service = availableServices.find(s => s.id === serviceId);
     if (service) {
-      setSelectedItems([...selectedItems, {
+      setSelectedItems(prev => [...prev, {
         serviceId: service.id,
         name: service.name,
         description: service.description,
@@ -58,9 +63,11 @@ const CreateQuote = () => {
   };
 
   const handleRemoveItem = (index: number) => {
-    const newItems = [...selectedItems];
-    newItems.splice(index, 1);
-    setSelectedItems(newItems);
+    setSelectedItems(prev => {
+      const newItems = [...prev];
+      newItems.splice(index, 1);
+      return newItems;
+    });
   };
 
   const total = selectedItems.reduce((sum, item) => sum + item.price, 0);
@@ -92,7 +99,7 @@ const CreateQuote = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 pb-20">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate("/quotes")} className="rounded-full">
           <ArrowLeft className="h-5 w-5" />
@@ -109,14 +116,21 @@ const CreateQuote = () => {
             <CardContent>
               <div className="space-y-2">
                 <Label>Seleziona Cliente</Label>
-                <Select onValueChange={setSelectedClientId} value={selectedClientId}>
+                <Select 
+                  onValueChange={setSelectedClientId} 
+                  value={selectedClientId || undefined}
+                >
                   <SelectTrigger className="rounded-xl">
                     <SelectValue placeholder="Scegli un cliente esistente..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {clients.map(client => (
-                      <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                    ))}
+                    {clients.length > 0 ? (
+                      clients.map(client => (
+                        <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                      ))
+                    ) : (
+                      <div className="p-2 text-sm text-muted-foreground text-center">Nessun cliente trovato</div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -124,18 +138,22 @@ const CreateQuote = () => {
           </Card>
 
           <Card className="rounded-2xl border-none elevation-1">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <CardTitle>Servizi nel Preventivo</CardTitle>
-              <div className="w-64">
-                <Select onValueChange={handleAddItem}>
+              <div className="w-full sm:w-64">
+                <Select onValueChange={handleAddItem} value="">
                   <SelectTrigger className="rounded-xl bg-secondary border-none">
                     <Plus className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="Aggiungi servizio..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableServices.map(service => (
-                      <SelectItem key={service.id} value={service.id}>{service.name} (€{service.price})</SelectItem>
-                    ))}
+                    {availableServices.length > 0 ? (
+                      availableServices.map(service => (
+                        <SelectItem key={service.id} value={service.id}>{service.name} (€{service.price})</SelectItem>
+                      ))
+                    ) : (
+                      <div className="p-2 text-sm text-muted-foreground text-center">Nessun servizio configurato</div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -146,14 +164,19 @@ const CreateQuote = () => {
                   <p className="text-center text-muted-foreground py-8 italic">Nessun servizio aggiunto ancora.</p>
                 ) : (
                   selectedItems.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl">
+                    <div key={`${item.serviceId}-${index}`} className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl">
                       <div>
                         <p className="font-semibold">{item.name}</p>
                         <p className="text-sm text-muted-foreground">{item.description}</p>
                       </div>
                       <div className="flex items-center gap-4">
                         <p className="font-bold">€ {item.price.toFixed(2)}</p>
-                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(index)} className="text-destructive hover:bg-destructive/10 rounded-full">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleRemoveItem(index)} 
+                          className="text-destructive hover:bg-destructive/10 rounded-full"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -181,7 +204,10 @@ const CreateQuote = () => {
                   <span>€ {total.toFixed(2)}</span>
                 </div>
               </div>
-              <Button onClick={handleSave} className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl py-6 text-lg font-bold">
+              <Button 
+                onClick={handleSave} 
+                className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl py-6 text-lg font-bold"
+              >
                 <Save className="mr-2 h-5 w-5" /> Salva Preventivo
               </Button>
             </CardContent>
