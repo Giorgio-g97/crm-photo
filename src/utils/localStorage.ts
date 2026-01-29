@@ -1,6 +1,6 @@
 "use client";
 
-interface Client {
+export interface Client {
   id: string;
   name: string;
   email: string;
@@ -10,21 +10,21 @@ interface Client {
   internalNotes?: string;
 }
 
-interface Service {
+export interface Service {
   id: string;
   name: string;
   description: string;
   price: number;
 }
 
-interface QuoteItem {
+export interface QuoteItem {
   serviceId: string;
   name: string;
   description: string;
   price: number;
 }
 
-interface Quote {
+export interface Quote {
   id: string;
   clientId: string;
   clientName: string;
@@ -71,7 +71,7 @@ export const updateClient = (updatedClient: Client): Client => {
     saveClients(clients);
     return updatedClient;
   }
-  return updatedClient; // Or throw an error if client not found
+  return updatedClient;
 };
 
 export const getClientById = (id: string): Client | undefined => {
