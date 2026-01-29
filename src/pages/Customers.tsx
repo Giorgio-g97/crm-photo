@@ -8,9 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { showSuccess, showError } from "@/utils/toast";
-import { Pencil, PlusCircle } from "lucide-react"; // Added PlusCircle for future "add client"
+import { Pencil, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Customers = () => {
+  const navigate = useNavigate();
   const [clients, setClients] = useState<Client[]>([]);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,133 +26,111 @@ const Customers = () => {
     setIsModalOpen(true);
   };
 
+  const handleCreateQuote = (clientId: string) => {
+    navigate(`/quotes/new?clientId=${clientId}`);
+  };
+
   const handleSaveClient = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingClient) {
       try {
         updateClient(editingClient);
-        setClients(getClients()); // Refresh client list
+        setClients(getClients());
         setIsModalOpen(false);
         setEditingClient(null);
         showSuccess("Cliente aggiornato con successo!");
       } catch (error) {
-        console.error("Failed to update client:", error);
-        showError("Errore durante l'aggiornamento del cliente.");
+        showError("Errore durante l'aggiornamento.");
       }
     }
   };
 
   return (
-    <div className="p-6 bg-card text-card-foreground rounded-xl shadow-lg">
+    <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-extrabold text-primary">Customers</h1>
-        {/* <Button className="bg-primary text-primary-foreground rounded-lg shadow-md hover:bg-primary/90">
-          <PlusCircle className="mr-2 h-5 w-5" /> Add New Client
-        </Button> */}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Clienti</h1>
+          <p className="text-muted-foreground">Gestisci i contatti e visualizza i loro dati.</p>
+        </div>
       </div>
-      <p className="text-lg text-muted-foreground mb-8">
-        Gestisci qui i tuoi clienti.
-      </p>
-      <div className="mt-8">
+
+      <div className="grid gap-4">
         {clients.length === 0 ? (
-          <p className="text-center text-muted-foreground text-xl">Nessun cliente ancora. Condividi il link del form pubblico!</p>
+          <p className="text-center text-muted-foreground py-12 text-xl italic border-2 border-dashed rounded-2xl">
+            Nessun cliente ancora. Condividi il link del form pubblico!
+          </p>
         ) : (
-          <ul className="space-y-4">
-            {clients.map((client) => (
-              <li
-                key={client.id}
-                className="bg-secondary p-4 rounded-lg shadow-sm text-secondary-foreground flex justify-between items-center"
-              >
-                <div>
-                  <h3 className="font-semibold text-xl">{client.name}</h3>
-                  <p className="text-muted-foreground">{client.email}</p>
-                  <p className="text-muted-foreground">{client.phone}</p>
-                  {client.internalNotes && (
-                    <p className="text-sm text-gray-500 mt-2 italic">Note interne: {client.internalNotes}</p>
-                  )}
-                </div>
+          clients.map((client) => (
+            <div
+              key={client.id}
+              className="bg-card p-6 rounded-2xl elevation-1 flex justify-between items-center group hover:bg-secondary/20 transition-colors"
+            >
+              <div>
+                <h3 className="font-bold text-xl">{client.name}</h3>
+                <p className="text-muted-foreground">{client.email} • {client.phone}</p>
+                {client.internalNotes && (
+                  <p className="text-sm text-primary mt-2 italic font-medium">Nota: {client.internalNotes}</p>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="rounded-xl gap-2 border-primary/20 hover:bg-primary/10"
+                  onClick={() => handleCreateQuote(client.id)}
+                >
+                  <FileText className="h-4 w-4" /> Preventivo
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => handleEditClick(client)}
-                  className="text-primary hover:bg-primary/10"
+                  className="rounded-full hover:bg-primary/10 text-primary"
                 >
                   <Pencil className="h-5 w-5" />
                 </Button>
-              </li>
-            ))}
-          </ul>
+              </div>
+            </div>
+          ))
         )}
       </div>
 
       {isModalOpen && editingClient && (
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[425px] rounded-xl">
+          <DialogContent className="sm:max-w-[425px] rounded-2xl">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-primary">Modifica Cliente</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSaveClient} className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-name" className="text-right">
-                  Nome
-                </Label>
+            <form onSubmit={handleSaveClient} className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Nome</Label>
                 <Input
                   id="edit-name"
                   value={editingClient.name}
                   onChange={(e) => setEditingClient({ ...editingClient, name: e.target.value })}
-                  className="col-span-3 rounded-lg"
+                  className="rounded-xl"
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-email" className="text-right">
-                  Email
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="edit-email">Email</Label>
                 <Input
                   id="edit-email"
                   type="email"
                   value={editingClient.email}
                   onChange={(e) => setEditingClient({ ...editingClient, email: e.target.value })}
-                  className="col-span-3 rounded-lg"
+                  className="rounded-xl"
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-phone" className="text-right">
-                  Telefono
-                </Label>
-                <Input
-                  id="edit-phone"
-                  type="tel"
-                  value={editingClient.phone}
-                  onChange={(e) => setEditingClient({ ...editingClient, phone: e.target.value })}
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-notes" className="text-right">
-                  Note Cliente
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="edit-notes">Note Interne</Label>
                 <Textarea
                   id="edit-notes"
-                  value={editingClient.notes}
-                  onChange={(e) => setEditingClient({ ...editingClient, notes: e.target.value })}
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-internal-notes" className="text-right">
-                  Note Interne
-                </Label>
-                <Textarea
-                  id="edit-internal-notes"
                   value={editingClient.internalNotes || ""}
                   onChange={(e) => setEditingClient({ ...editingClient, internalNotes: e.target.value })}
-                  className="col-span-3 rounded-lg"
+                  className="rounded-xl min-h-[100px]"
                 />
               </div>
               <DialogFooter>
-                <Button type="submit" className="bg-primary text-primary-foreground rounded-lg shadow-md hover:bg-primary/90">
-                  Salva modifiche
-                </Button>
+                <Button type="submit" className="w-full rounded-xl">Salva modifiche</Button>
               </DialogFooter>
             </form>
           </DialogContent>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { getQuotes, Quote } from "@/utils/localStorage";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Download } from "lucide-react";
+import { Plus, FileText, Download, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
@@ -14,6 +14,10 @@ const Quotes = () => {
   useEffect(() => {
     setQuotes(getQuotes());
   }, []);
+
+  const handleDuplicate = (quoteId: string) => {
+    navigate(`/quotes/new?duplicateId=${quoteId}`);
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -51,13 +55,22 @@ const Quotes = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
+                <div className="flex items-center gap-3">
+                  <div className="text-right mr-4">
                     <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Totale</p>
                     <p className="text-xl font-bold text-primary">€ {quote.total.toFixed(2)}</p>
                   </div>
-                  <Button variant="outline" size="icon" className="rounded-full">
+                  <Button variant="outline" size="icon" className="rounded-full" title="Scarica PDF">
                     <Download className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="rounded-full" 
+                    title="Duplica preventivo"
+                    onClick={() => handleDuplicate(quote.id)}
+                  >
+                    <Copy className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>

@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getClients, getServices, addQuote, Client, Service } from "@/utils/localStorage";
+import { getClients, getServices, getQuotes, addQuote, Client, Service } from "@/utils/localStorage";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, ArrowLeft, Save } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Plus, Trash2, ArrowLeft, Save, Copy } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
 
 const CreateQuote = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [clients, setClients] = useState<Client[]>([]);
   const [availableServices, setAvailableServices] = useState<Service[]>([]);
   
@@ -19,9 +20,30 @@ const CreateQuote = () => {
   const [selectedItems, setSelectedItems] = useState<{serviceId: string, name: string, description: string, price: number}[]>([]);
 
   useEffect(() => {
-    setClients(getClients());
-    setAvailableServices(getServices());
-  }, []);
+    const allClients = getClients();
+    const allServices = getServices();
+    const allQuotes = getQuotes();
+    
+    setClients(allClients);
+    setAvailableServices(allServices);
+
+    // Gestione parametri URL
+    const clientIdParam = searchParams.get("clientId");
+    const duplicateIdParam = searchParams.get("duplicateId");
+
+    if (clientIdParam) {
+      setSelectedClientId(clientIdParam);
+    }
+
+    if (duplicateIdParam) {
+      const quoteToCopy = allQuotes.find(q => q.id === duplicateIdParam);
+      if (quoteToCopy) {
+        setSelectedClientId(quoteToCopy.clientId);
+        setSelectedItems(quoteToCopy.items.map(item => ({ ...item })));
+        showSuccess("Dati caricati dal preventivo precedente");
+      }
+    }
+  }, [searchParams]);
 
   const handleAddItem = (serviceId: string) => {
     const service = availableServices.find(s => s.id === serviceId);
