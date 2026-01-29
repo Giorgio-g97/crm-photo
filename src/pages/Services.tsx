@@ -70,7 +70,7 @@ const Services = () => {
   return (
     <div className="p-6 bg-card text-card-foreground rounded-xl shadow-lg">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-extrabold text-primary">Services</h1>
+        <h1 className="text-4xl font-extrabold text-primary">Servizi</h1>
         <Button
           onClick={handleAddClick}
           className="bg-primary text-primary-foreground rounded-lg shadow-md hover:bg-primary/90"

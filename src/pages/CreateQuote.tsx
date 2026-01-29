@@ -40,8 +40,6 @@ const CreateQuote = () => {
     }
 
     if (duplicateIdParam) {
-      // Qui potresti caricare i dati del preventivo da duplicare
-      // Per ora, mostriamo un messaggio
       showSuccess("Modalità duplicazione attivata");
     }
   }, [searchParams]);
