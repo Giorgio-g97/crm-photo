@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getQuotes, Quote } from "@/utils/localStorage";
+import { getQuotes, Quote, getClientById } from "@/utils/localStorage";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Download, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
+import { generateQuotePDF } from "@/utils/pdfGenerator";
 
 const Quotes = () => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -32,6 +33,21 @@ const Quotes = () => {
       navigate(`/quotes/new?duplicateId=${selectedQuoteToDuplicate}`);
     } else {
       showError("Seleziona un preventivo da duplicare");
+    }
+  };
+
+  const handleDownloadPDF = (quote: Quote) => {
+    try {
+      const client = getClientById(quote.clientId);
+      if (client) {
+        generateQuotePDF(quote, client.name, client.email, client.phone);
+        showSuccess("PDF generato con successo!");
+      } else {
+        showError("Cliente non trovato");
+      }
+    } catch (error) {
+      console.error("Errore generazione PDF:", error);
+      showError("Errore durante la generazione del PDF");
     }
   };
 
@@ -100,41 +116,50 @@ const Quotes = () => {
             </CardContent>
           </Card>
         ) : (
-          quotes.map((quote) => (
-            <Card key={quote.id} className="hover:shadow-md transition-shadow duration-200 rounded-2xl overflow-hidden border-none elevation-1">
-              <CardContent className="p-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 p-3 rounded-xl">
-                    <FileText className="text-primary h-6 w-6" />
+          quotes.map((quote) => {
+            const client = getClientById(quote.clientId);
+            return (
+              <Card key={quote.id} className="hover:shadow-md transition-shadow duration-200 rounded-2xl overflow-hidden border-none elevation-1">
+                <CardContent className="p-6 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-primary/10 p-3 rounded-xl">
+                      <FileText className="text-primary h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">{quote.clientName}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(quote.timestamp).toLocaleDateString('it-IT')} • {quote.items.length} voci
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">{quote.clientName}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(quote.timestamp).toLocaleDateString('it-IT')} • {quote.items.length} voci
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right mr-4">
+                      <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Totale</p>
+                      <p className="text-xl font-bold text-primary">€ {quote.total.toFixed(2)}</p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="rounded-full" 
+                      title="Scarica PDF"
+                      onClick={() => handleDownloadPDF(quote)}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="rounded-full" 
+                      title="Duplica preventivo"
+                      onClick={() => navigate(`/quotes/new?duplicateId=${quote.id}`)}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right mr-4">
-                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Totale</p>
-                    <p className="text-xl font-bold text-primary">€ {quote.total.toFixed(2)}</p>
-                  </div>
-                  <Button variant="outline" size="icon" className="rounded-full" title="Scarica PDF">
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="rounded-full" 
-                    title="Duplica preventivo"
-                    onClick={() => navigate(`/quotes/new?duplicateId=${quote.id}`)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
     </div>
