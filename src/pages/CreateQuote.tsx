@@ -199,8 +199,8 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                     <SelectValue placeholder={clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."} />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* Aggiunto SelectItem placeholder con valore non vuoto e disabilitato */}
-                    <SelectItem value="select-client-placeholder" disabled>
+                    {/* Rimosso 'disabled' per assicurare che sia un SelectItem valido per il valore */}
+                    <SelectItem value="select-client-placeholder">
                       {clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."}
                     </SelectItem>
                     {clients.map(client => (
@@ -231,8 +231,8 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                         <SelectValue placeholder="Scegli un servizio..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Aggiunto SelectItem placeholder con valore non vuoto e disabilitato */}
-                        <SelectItem value="select-service-placeholder" disabled>Scegli un servizio...</SelectItem>
+                        {/* Rimosso 'disabled' per assicurare che sia un SelectItem valido per il valore */}
+                        <SelectItem value="select-service-placeholder">Scegli un servizio...</SelectItem>
                         <SelectItem value="custom-service">Servizio Personalizzato</SelectItem>
                         {services.map(service => (
                           <SelectItem key={service.id} value={service.id}>
