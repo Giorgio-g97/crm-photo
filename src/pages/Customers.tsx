@@ -46,8 +46,8 @@ const Customers = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="max-w-5xl mx-auto space-y-6 p-2 md:p-0">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">Clienti</h1>
           <p className="text-muted-foreground">Gestisci i contatti e visualizza i loro dati.</p>
@@ -63,19 +63,19 @@ const Customers = () => {
           clients.map((client) => (
             <div
               key={client.id}
-              className="bg-card p-6 rounded-2xl elevation-1 flex justify-between items-center group hover:bg-secondary/20 transition-colors"
+              className="bg-card p-4 sm:p-6 rounded-2xl elevation-1 flex flex-col sm:flex-row justify-between items-start sm:items-center group hover:bg-secondary/20 transition-colors"
             >
-              <div>
-                <h3 className="font-bold text-xl">{client.name}</h3>
-                <p className="text-muted-foreground">{client.email} • {client.phone}</p>
+              <div className="mb-3 sm:mb-0">
+                <h3 className="font-bold text-lg">{client.name}</h3>
+                <p className="text-muted-foreground text-sm sm:text-base">{client.email} • {client.phone}</p>
                 {client.internalNotes && (
                   <p className="text-sm text-primary mt-2 italic font-medium">Nota: {client.internalNotes}</p>
                 )}
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-3 sm:mt-0">
                 <Button
                   variant="outline"
-                  className="rounded-xl gap-2 border-primary/20 hover:bg-primary/10"
+                  className="rounded-xl gap-2 border-primary/20 hover:bg-primary/10 text-sm h-9"
                   onClick={() => handleCreateQuote(client.id)}
                 >
                   <FileText className="h-4 w-4" /> Preventivo

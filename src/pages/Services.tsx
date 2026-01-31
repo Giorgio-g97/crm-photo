@@ -68,19 +68,22 @@ const Services = () => {
   };
 
   return (
-    <div className="p-6 bg-card text-card-foreground rounded-xl shadow-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-extrabold text-primary">Servizi</h1>
+    <div className="p-2 md:p-6 bg-card text-card-foreground rounded-xl shadow-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <div className="mb-4 sm:mb-0">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-primary">Servizi</h1>
+          <p className="text-base text-muted-foreground">
+            Gestisci qui i tuoi servizi standard.
+          </p>
+        </div>
         <Button
           onClick={handleAddClick}
-          className="bg-primary text-primary-foreground rounded-lg shadow-md hover:bg-primary/90"
+          className="bg-primary text-primary-foreground rounded-lg shadow-md hover:bg-primary/90 w-full sm:w-auto"
         >
           <PlusCircle className="mr-2 h-5 w-5" /> Aggiungi Servizio
         </Button>
       </div>
-      <p className="text-lg text-muted-foreground mb-8">
-        Gestisci qui i tuoi servizi standard.
-      </p>
+      
       <div className="mt-8">
         {services.length === 0 ? (
           <p className="text-center text-muted-foreground text-xl">Nessun servizio ancora. Aggiungine uno!</p>
@@ -89,11 +92,11 @@ const Services = () => {
             {services.map((service) => (
               <li
                 key={service.id}
-                className="bg-secondary p-4 rounded-lg shadow-sm text-secondary-foreground flex justify-between items-center"
+                className="bg-secondary p-4 rounded-lg shadow-sm text-secondary-foreground flex flex-col sm:flex-row justify-between items-start sm:items-center"
               >
-                <div>
+                <div className="mb-3 sm:mb-0">
                   <h3 className="font-semibold text-xl">{service.name} - €{service.price.toFixed(2)}</h3>
-                  <p className="text-muted-foreground">{service.description}</p>
+                  <p className="text-muted-foreground text-sm">{service.description}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -128,40 +131,34 @@ const Services = () => {
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSaveService} className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="service-name" className="text-right">
-                  Nome
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="service-name">Nome</Label>
                 <Input
                   id="service-name"
                   value={editingService.name}
                   onChange={(e) => setEditingService({ ...editingService, name: e.target.value })}
-                  className="col-span-3 rounded-lg"
+                  className="rounded-lg"
                   required
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="service-description" className="text-right">
-                  Descrizione
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="service-description">Descrizione</Label>
                 <Textarea
                   id="service-description"
                   value={editingService.description}
                   onChange={(e) => setEditingService({ ...editingService, description: e.target.value })}
-                  className="col-span-3 rounded-lg"
+                  className="rounded-lg"
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="service-price" className="text-right">
-                  Prezzo Base
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="service-price">Prezzo Base</Label>
                 <Input
                   id="service-price"
                   type="number"
                   step="0.01"
                   value={editingService.price}
                   onChange={(e) => setEditingService({ ...editingService, price: parseFloat(e.target.value) || 0 })}
-                  className="col-span-3 rounded-lg"
+                  className="rounded-lg"
                   required
                 />
               </div>

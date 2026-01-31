@@ -174,19 +174,19 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
   const saveButtonText = isEditing ? "Salva Modifiche" : "Salva Preventivo";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20">
+    <div className="max-w-4xl mx-auto space-y-6 pb-20 p-2 md:p-0">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate("/quotes")} className="rounded-full">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-3xl font-bold">{pageTitle}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">{pageTitle}</h1>
         {isEditing && existingQuote && (
-          <span className="text-sm text-muted-foreground">ID: {existingQuote.id.substring(0, 8).toUpperCase()}</span>
+          <span className="text-sm text-muted-foreground hidden sm:inline">ID: {existingQuote.id.substring(0, 8).toUpperCase()}</span>
         )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-6 order-2 md:order-1">
           <Card className="rounded-2xl border-none elevation-1">
             <CardHeader>
               <CardTitle>Dettagli Cliente</CardTitle>
@@ -203,7 +203,6 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                     <SelectValue placeholder={clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."} />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* SelectItem placeholder con valore non vuoto */}
                     <SelectItem value={CLIENT_PLACEHOLDER_VALUE}>
                       {clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."}
                     </SelectItem>
@@ -224,8 +223,8 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
                     <Label htmlFor="service-select">Servizio Esistente</Label>
                     <Select
                       value={newItem.serviceId}
@@ -235,7 +234,6 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                         <SelectValue placeholder="Scegli un servizio..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* SelectItem placeholder con valore non vuoto */}
                         <SelectItem value={SERVICE_PLACEHOLDER_VALUE}>Scegli un servizio...</SelectItem>
                         <SelectItem value={CUSTOM_SERVICE_VALUE}>Servizio Personalizzato</SelectItem>
                         {services.map(service => (
@@ -260,7 +258,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="item-name">Nome Servizio</Label>
                     <Input
@@ -323,7 +321,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                         </p>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="font-bold">€ {(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="font-bold text-base sm:text-lg">€ {(item.price * item.quantity).toFixed(2)}</p>
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -341,8 +339,8 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
           </Card>
         </div>
 
-        <div className="space-y-6">
-          <Card className="rounded-2xl border-none bg-primary text-primary-foreground shadow-xl">
+        <div className="space-y-6 order-1 md:order-2">
+          <Card className="rounded-2xl border-none bg-primary text-primary-foreground shadow-xl sticky top-4">
             <CardHeader>
               <CardTitle>Riepilogo</CardTitle>
             </CardHeader>

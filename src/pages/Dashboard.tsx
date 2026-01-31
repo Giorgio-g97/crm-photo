@@ -23,31 +23,31 @@ const Dashboard = () => {
   }, []); // L'array vuoto assicura che l'effetto venga eseguito solo una volta al mount
 
   return (
-    <div className="p-6 bg-card text-card-foreground rounded-xl shadow-lg">
-      <h1 className="text-4xl font-extrabold text-primary mb-6">Dashboard CRM</h1>
-      <p className="text-lg text-muted-foreground">
+    <div className="p-4 md:p-6 bg-card text-card-foreground rounded-xl shadow-lg">
+      <h1 className="text-3xl md:text-4xl font-extrabold text-primary mb-4 md:mb-6">Dashboard CRM</h1>
+      <p className="text-base md:text-lg text-muted-foreground">
         Benvenuto nella tua dashboard CRM. Qui potrai visualizzare una panoramica delle tue attività.
       </p>
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         
         <Link to="/customers" className="block">
-          <div className="bg-secondary p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
-            <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Clienti Totali</h2>
-            <p className="text-4xl font-bold text-primary">{totalClients}</p>
+          <div className="bg-secondary p-5 md:p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+            <h2 className="text-xl md:text-2xl font-semibold text-secondary-foreground mb-2 md:mb-3">Clienti Totali</h2>
+            <p className="text-3xl md:text-4xl font-bold text-primary">{totalClients}</p>
           </div>
         </Link>
 
         <Link to="/quotes" className="block">
-          <div className="bg-secondary p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
-            <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Preventivi Totali</h2>
-            <p className="text-4xl font-bold text-primary">{totalQuotes}</p>
+          <div className="bg-secondary p-5 md:p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+            <h2 className="text-xl md:text-2xl font-semibold text-secondary-foreground mb-2 md:mb-3">Preventivi Totali</h2>
+            <p className="text-3xl md:text-4xl font-bold text-primary">{totalQuotes}</p>
           </div>
         </Link>
 
         <Link to="/quotes" className="block">
-          <div className="bg-secondary p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
-            <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Ricavi Totali (Stima Preventivi)</h2>
-            <p className="text-4xl font-bold text-primary">€{estimatedRevenue.toFixed(2)}</p>
+          <div className="bg-secondary p-5 md:p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+            <h2 className="text-xl md:text-2xl font-semibold text-secondary-foreground mb-2 md:mb-3">Ricavi Totali (Stima Preventivi)</h2>
+            <p className="text-3xl md:text-4xl font-bold text-primary">€{estimatedRevenue.toFixed(2)}</p>
           </div>
         </Link>
       </div>

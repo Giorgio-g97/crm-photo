@@ -5,7 +5,7 @@ import { getQuotes, Quote, getClientById, deleteQuote } from "@/utils/localStora
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Download, Copy, Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { showSuccess, showError } from "@/utils/toast";
 import { generateQuotePDF } from "@/utils/pdfGenerator";
 
@@ -54,13 +54,13 @@ const Quotes = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
+    <div className="max-w-5xl mx-auto space-y-6 p-2 md:p-0">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="mb-4 sm:mb-0">
           <h1 className="text-3xl font-bold tracking-tight">Preventivi</h1>
           <p className="text-muted-foreground">Gestisci e crea nuovi preventivi per i tuoi clienti.</p>
         </div>
-        <Button onClick={handleCreateNew} className="rounded-2xl gap-2">
+        <Button onClick={handleCreateNew} className="rounded-2xl gap-2 w-full sm:w-auto">
           <Plus className="h-5 w-5" /> Nuovo Preventivo
         </Button>
       </div>
@@ -79,9 +79,9 @@ const Quotes = () => {
             const client = getClientById(quote.clientId);
             return (
               <Card key={quote.id} className="hover:shadow-md transition-shadow duration-200 rounded-2xl overflow-hidden border-none elevation-1">
-                <CardContent className="p-6 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-primary/10 p-3 rounded-xl">
+                <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                  <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                    <div className="bg-primary/10 p-3 rounded-xl flex-shrink-0">
                       <FileText className="text-primary h-6 w-6" />
                     </div>
                     <div>
@@ -91,50 +91,52 @@ const Quotes = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right mr-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                    <div className="text-left sm:text-right mr-0 sm:mr-4 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0">
                       <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Totale</p>
                       <p className="text-xl font-bold text-primary">€ {quote.total.toFixed(2)}</p>
                     </div>
                     
-                    {/* Bottone Modifica */}
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="rounded-full" 
-                      title="Modifica preventivo"
-                      onClick={() => handleEditQuote(quote.id)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      {/* Bottone Modifica */}
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="rounded-full flex-shrink-0" 
+                        title="Modifica preventivo"
+                        onClick={() => handleEditQuote(quote.id)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
 
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="rounded-full" 
-                      title="Scarica PDF"
-                      onClick={() => handleDownloadPDF(quote)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="rounded-full" 
-                      title="Duplica preventivo"
-                      onClick={() => navigate(`/quotes/new?duplicateId=${quote.id}`)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="rounded-full text-destructive hover:bg-destructive/10" 
-                      title="Elimina preventivo"
-                      onClick={() => handleDeleteQuote(quote.id, quote.clientName)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="rounded-full flex-shrink-0" 
+                        title="Scarica PDF"
+                        onClick={() => handleDownloadPDF(quote)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="rounded-full flex-shrink-0 hidden sm:inline-flex" 
+                        title="Duplica preventivo"
+                        onClick={() => navigate(`/quotes/new?duplicateId=${quote.id}`)}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full text-destructive hover:bg-destructive/10 flex-shrink-0" 
+                        title="Elimina preventivo"
+                        onClick={() => handleDeleteQuote(quote.id, quote.clientName)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
