@@ -79,30 +79,30 @@ const Quotes = () => {
             const client = getClientById(quote.clientId);
             return (
               <Card key={quote.id} className="hover:shadow-md transition-shadow duration-200 rounded-2xl overflow-hidden border-none elevation-1">
-                <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-                  <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
                     <div className="bg-primary/10 p-3 rounded-xl flex-shrink-0">
                       <FileText className="text-primary h-6 w-6" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-lg">{quote.clientName}</h3>
+                    <div className="overflow-hidden">
+                      <h3 className="font-semibold text-lg truncate">{quote.clientName}</h3>
                       <p className="text-sm text-muted-foreground">
                         {new Date(quote.timestamp).toLocaleDateString('it-IT')} • {quote.items.length} voci
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-                    <div className="text-left sm:text-right mr-0 sm:mr-4 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0">
-                      <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Totale</p>
-                      <p className="text-xl font-bold text-primary">€ {quote.total.toFixed(2)}</p>
+                  <div className="flex flex-row items-center justify-between sm:justify-end gap-6 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0">
+                    <div className="text-left sm:text-right">
+                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-tight">Totale</p>
+                      <p className="text-xl font-black text-primary leading-tight">€ {quote.total.toFixed(2)}</p>
                     </div>
                     
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-1">
                       {/* Bottone Modifica */}
                       <Button 
-                        variant="outline" 
+                        variant="ghost" 
                         size="icon" 
-                        className="rounded-full flex-shrink-0" 
+                        className="rounded-full h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10" 
                         title="Modifica preventivo"
                         onClick={() => handleEditQuote(quote.id)}
                       >
@@ -110,27 +110,19 @@ const Quotes = () => {
                       </Button>
 
                       <Button 
-                        variant="outline" 
+                        variant="ghost" 
                         size="icon" 
-                        className="rounded-full flex-shrink-0" 
+                        className="rounded-full h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10" 
                         title="Scarica PDF"
                         onClick={() => handleDownloadPDF(quote)}
                       >
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="rounded-full flex-shrink-0 hidden sm:inline-flex" 
-                        title="Duplica preventivo"
-                        onClick={() => navigate(`/quotes/new?duplicateId=${quote.id}`)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
+                      
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="rounded-full text-destructive hover:bg-destructive/10 flex-shrink-0" 
+                        className="rounded-full h-9 w-9 text-destructive hover:bg-destructive/10" 
                         title="Elimina preventivo"
                         onClick={() => handleDeleteQuote(quote.id, quote.clientName)}
                       >

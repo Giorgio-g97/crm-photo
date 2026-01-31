@@ -45,11 +45,36 @@ const Dashboard = () => {
         </Link>
 
         <Link to="/quotes" className="block">
-          <div className="bg-secondary p-5 md:p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+          <div className="bg-secondary p-5 md:p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer text-center">
             <h2 className="text-xl md:text-2xl font-semibold text-secondary-foreground mb-2 md:mb-3">Ricavi Totali (Stima Preventivi)</h2>
             <p className="text-3xl md:text-4xl font-bold text-primary">€{estimatedRevenue.toFixed(2)}</p>
           </div>
         </Link>
+      </div>
+
+      <div className="mt-8 md:mt-12 p-6 md:p-8 bg-primary/5 rounded-2xl border-2 border-dashed border-primary/20">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold text-primary mb-2">Link Form Pubblico</h2>
+            <p className="text-muted-foreground">
+              Condividi questo link con i tuoi clienti per raccogliere i loro dati automaticamente.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto overflow-hidden">
+            <code className="bg-background px-4 py-2 rounded-lg border text-sm font-mono w-full sm:w-auto text-center break-all">
+              {window.location.origin}/public-form
+            </code>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/public-form`);
+                alert("Link copiato negli appunti!");
+              }}
+              className="bg-primary text-primary-foreground px-6 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-colors w-full sm:w-auto"
+            >
+              Copia Link
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

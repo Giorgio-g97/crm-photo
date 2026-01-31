@@ -175,13 +175,17 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20 p-2 md:p-0">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/quotes")} className="rounded-full">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-2xl md:text-3xl font-bold">{pageTitle}</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/quotes")} className="rounded-full">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl md:text-3xl font-bold">{pageTitle}</h1>
+        </div>
         {isEditing && existingQuote && (
-          <span className="text-sm text-muted-foreground hidden sm:inline">ID: {existingQuote.id.substring(0, 8).toUpperCase()}</span>
+          <span className="text-xs sm:text-sm text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+            ID: {existingQuote.id.substring(0, 8).toUpperCase()}
+          </span>
         )}
       </div>
 
@@ -223,8 +227,8 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
                     <Label htmlFor="service-select">Servizio Esistente</Label>
                     <Select
                       value={newItem.serviceId}
