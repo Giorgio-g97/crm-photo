@@ -182,7 +182,8 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                 <Select
                   value={selectedClientId}
                   onValueChange={setSelectedClientId}
-                  disabled={isEditing}
+                  // Disabilita se non ci sono clienti
+                  disabled={isEditing || clients.length === 0} 
                 >
                   <SelectTrigger id="client-select" className="rounded-xl">
                     <SelectValue placeholder={clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."} />
@@ -216,7 +217,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                         <SelectValue placeholder="Scegli un servizio..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="custom-service">Servizio Personalizzato</SelectItem> {/* Added a valid item for custom service */}
+                        <SelectItem value="custom-service">Servizio Personalizzato</SelectItem>
                         {services.map(service => (
                           <SelectItem key={service.id} value={service.id}>
                             {service.name} (€{service.price.toFixed(2)})
