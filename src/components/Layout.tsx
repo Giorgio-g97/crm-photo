@@ -21,7 +21,7 @@ const Layout = () => {
       {/* Sidebar Desktop (Hidden on mobile) */}
       <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border p-4 flex-col shadow-sm hidden md:flex">
         <div className="flex items-center px-4 h-16 mb-6">
-          <h1 className="text-xl font-bold text-primary tracking-tight">Material CRM</h1>
+          <h1 className="text-xl font-bold text-primary tracking-tight">CRM Alberto</h1>
         </div>
         <Sidebar />
       </aside>
@@ -36,13 +36,13 @@ const Layout = () => {
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0 flex flex-col" aria-describedby={undefined}>
             <div className="flex items-center px-4 h-16 mb-6 border-b">
-              <SheetTitle className="text-xl font-bold text-primary tracking-tight">Material CRM</SheetTitle>
+              <SheetTitle className="text-xl font-bold text-primary tracking-tight">CRM Alberto</SheetTitle>
             </div>
             {/* Passiamo handleLinkClick alla Sidebar per chiudere lo Sheet */}
             <Sidebar onLinkClick={handleLinkClick} />
           </SheetContent>
         </Sheet>
-        <h1 className="text-xl font-bold text-primary tracking-tight">Material CRM</h1>
+        <h1 className="text-xl font-bold text-primary tracking-tight">CRM Alberto</h1>
       </header>
 
       {/* Contenuto Principale */}
