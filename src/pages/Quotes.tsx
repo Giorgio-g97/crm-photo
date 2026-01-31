@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getQuotes, Quote, getClientById } from "@/utils/localStorage";
+import { getQuotes, Quote, getClientById, deleteQuote } from "@/utils/localStorage";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Download, Copy } from "lucide-react";
+import { Plus, FileText, Download, Copy, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -48,6 +48,19 @@ const Quotes = () => {
     } catch (error) {
       console.error("Errore generazione PDF:", error);
       showError("Errore durante la generazione del PDF");
+    }
+  };
+  
+  const handleDeleteQuote = (id: string, clientName: string) => {
+    if (window.confirm(`Sei sicuro di voler eliminare il preventivo per ${clientName}?`)) {
+      try {
+        deleteQuote(id);
+        setQuotes(getQuotes());
+        showSuccess("Preventivo eliminato con successo!");
+      } catch (error) {
+        console.error("Errore eliminazione preventivo:", error);
+        showError("Errore durante l'eliminazione del preventivo.");
+      }
     }
   };
 
@@ -154,6 +167,15 @@ const Quotes = () => {
                       onClick={() => navigate(`/quotes/new?duplicateId=${quote.id}`)}
                     >
                       <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="rounded-full text-destructive hover:bg-destructive/10" 
+                      title="Elimina preventivo"
+                      onClick={() => handleDeleteQuote(quote.id, quote.clientName)}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardContent>

@@ -147,3 +147,9 @@ export const getQuotesByClientId = (clientId: string): Quote[] => {
   const quotes = getQuotes();
   return quotes.filter((quote) => quote.clientId === clientId);
 };
+
+export const deleteQuote = (id: string) => {
+  const quotes = getQuotes();
+  const filteredQuotes = quotes.filter((q) => q.id !== id);
+  saveQuotes(filteredQuotes);
+};
