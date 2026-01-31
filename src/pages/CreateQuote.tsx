@@ -19,17 +19,21 @@ interface CreateQuoteProps {
   isEditing?: boolean;
 }
 
+// Definisco i valori placeholder come costanti per chiarezza
+const CLIENT_PLACEHOLDER_VALUE = "select-client-placeholder";
+const SERVICE_PLACEHOLDER_VALUE = "select-service-placeholder";
+const CUSTOM_SERVICE_VALUE = "custom-service";
+
 const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { quoteId } = useParams<{ quoteId: string }>();
 
-  // Inizializza con valori non vuoti per evitare l'errore Select.Item
   const [clients, setClients] = useState<Client[]>([]);
   const [services, setServices] = useState<Service[]>([]);
-  const [selectedClientId, setSelectedClientId] = useState("select-client-placeholder"); // Valore placeholder non vuoto
+  const [selectedClientId, setSelectedClientId] = useState(CLIENT_PLACEHOLDER_VALUE);
   const [items, setItems] = useState<QuoteItem[]>([]);
-  const [newItem, setNewItem] = useState({ serviceId: "select-service-placeholder", name: "", description: "", price: 0, quantity: 1 }); // Valore placeholder non vuoto
+  const [newItem, setNewItem] = useState({ serviceId: SERVICE_PLACEHOLDER_VALUE, name: "", description: "", price: 0, quantity: 1 });
   const [existingQuote, setExistingQuote] = useState<Quote | null>(null);
 
   useEffect(() => {
@@ -45,7 +49,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
       if (clientIdParam) {
         setSelectedClientId(clientIdParam);
       } else {
-        setSelectedClientId("select-client-placeholder"); // Assicura che sia sempre un valore non vuoto
+        setSelectedClientId(CLIENT_PLACEHOLDER_VALUE);
       }
 
       if (isEditing && quoteId) {
@@ -84,17 +88,17 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
         price: service.price,
         quantity: 1,
       });
-    } else if (serviceId === "custom-service") {
-      setNewItem({ serviceId: "custom-service", name: "", description: "", price: 0, quantity: 1 });
+    } else if (serviceId === CUSTOM_SERVICE_VALUE) {
+      setNewItem({ serviceId: CUSTOM_SERVICE_VALUE, name: "", description: "", price: 0, quantity: 1 });
     } else {
-      // Se nessun servizio trovato o placeholder selezionato, resetta al placeholder
-      setNewItem({ serviceId: "select-service-placeholder", name: "", description: "", price: 0, quantity: 1 });
+      // Assicuriamo che il reset sia sempre al valore placeholder non vuoto
+      setNewItem({ serviceId: SERVICE_PLACEHOLDER_VALUE, name: "", description: "", price: 0, quantity: 1 });
     }
   };
 
   const handleAddItem = () => {
     // Non permettere di aggiungere il placeholder come item
-    if (newItem.serviceId === "select-service-placeholder") {
+    if (newItem.serviceId === SERVICE_PLACEHOLDER_VALUE) {
       showError("Seleziona un servizio valido o personalizzato.");
       return;
     }
@@ -104,7 +108,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
     }
 
     const itemToAdd: QuoteItem = {
-      serviceId: newItem.serviceId || crypto.randomUUID(),
+      serviceId: newItem.serviceId === CUSTOM_SERVICE_VALUE ? crypto.randomUUID() : newItem.serviceId,
       name: newItem.name,
       description: newItem.description,
       price: newItem.price,
@@ -112,7 +116,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
     };
 
     setItems([...items, itemToAdd]);
-    setNewItem({ serviceId: "select-service-placeholder", name: "", description: "", price: 0, quantity: 1 }); // Reset al placeholder
+    setNewItem({ serviceId: SERVICE_PLACEHOLDER_VALUE, name: "", description: "", price: 0, quantity: 1 }); // Reset al placeholder
   };
 
   const handleRemoveItem = (index: number) => {
@@ -129,7 +133,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
   const total = subtotal + ivaAmount;
 
   const handleSave = () => {
-    if (selectedClientId === "select-client-placeholder") {
+    if (selectedClientId === CLIENT_PLACEHOLDER_VALUE) {
       showError("Seleziona un cliente");
       return;
     }
@@ -199,8 +203,8 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                     <SelectValue placeholder={clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."} />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* Rimosso 'disabled' per assicurare che sia un SelectItem valido per il valore */}
-                    <SelectItem value="select-client-placeholder">
+                    {/* SelectItem placeholder con valore non vuoto */}
+                    <SelectItem value={CLIENT_PLACEHOLDER_VALUE}>
                       {clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."}
                     </SelectItem>
                     {clients.map(client => (
@@ -231,9 +235,9 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                         <SelectValue placeholder="Scegli un servizio..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Rimosso 'disabled' per assicurare che sia un SelectItem valido per il valore */}
-                        <SelectItem value="select-service-placeholder">Scegli un servizio...</SelectItem>
-                        <SelectItem value="custom-service">Servizio Personalizzato</SelectItem>
+                        {/* SelectItem placeholder con valore non vuoto */}
+                        <SelectItem value={SERVICE_PLACEHOLDER_VALUE}>Scegli un servizio...</SelectItem>
+                        <SelectItem value={CUSTOM_SERVICE_VALUE}>Servizio Personalizzato</SelectItem>
                         {services.map(service => (
                           <SelectItem key={service.id} value={service.id}>
                             {service.name} (€{service.price.toFixed(2)})
