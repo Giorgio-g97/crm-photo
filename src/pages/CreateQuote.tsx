@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Save, Plus, Trash2, Edit } from "lucide-react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
@@ -172,18 +174,22 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
             <CardContent>
               <div className="space-y-2">
                 <Label htmlFor="client-select">Seleziona Cliente</Label>
-                <select
-                  id="client-select"
+                <Select
                   value={selectedClientId}
-                  onChange={(e) => setSelectedClientId(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                  disabled={isEditing} // Prevent changing client when editing existing quote
+                  onValueChange={setSelectedClientId}
+                  disabled={isEditing}
                 >
-                  <option value="">Scegli un cliente...</option>
-                  {clients.map(client => (
-                    <option key={client.id} value={client.id}>{client.name}</option>
-                  ))}
-                </select>
+                  <SelectTrigger id="client-select" className="rounded-xl">
+                    <SelectValue placeholder="Scegli un cliente..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients.map(client => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
@@ -197,17 +203,22 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
                     <Label htmlFor="service-select">Servizio Esistente</Label>
-                    <select
-                      id="service-select"
+                    <Select
                       value={newItem.serviceId}
-                      onChange={(e) => handleServiceSelect(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                      onValueChange={handleServiceSelect}
                     >
-                      <option value="">Scegli un servizio...</option>
-                      {services.map(service => (
-                        <option key={service.id} value={service.id}>{service.name} (€{service.price})</option>
-                      ))}
-                    </select>
+                      <SelectTrigger id="service-select" className="rounded-xl">
+                        <SelectValue placeholder="Scegli un servizio..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Scegli un servizio...</SelectItem>
+                        {services.map(service => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} (€{service.price.toFixed(2)})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="item-quantity">Quantità</Label>
@@ -218,7 +229,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                       value={newItem.quantity}
                       onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value) || 1})}
                       placeholder="1"
-                      className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                      className="rounded-xl"
                     />
                   </div>
                 </div>
@@ -231,7 +242,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                       value={newItem.name}
                       onChange={(e) => setNewItem({...newItem, name: e.target.value})}
                       placeholder="Nome del servizio"
-                      className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                      className="rounded-xl"
                     />
                   </div>
                   <div>
@@ -244,20 +255,20 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                       value={newItem.price || ""}
                       onChange={(e) => setNewItem({...newItem, price: parseFloat(e.target.value) || 0})}
                       placeholder="0.00"
-                      className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                      className="rounded-xl"
                     />
                   </div>
                 </div>
                 
                 <div>
                   <Label htmlFor="item-description">Descrizione</Label>
-                  <textarea
+                  <Textarea
                     id="item-description"
                     value={newItem.description}
                     onChange={(e) => setNewItem({...newItem, description: e.target.value})}
                     placeholder="Descrizione del servizio"
                     rows={2}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="rounded-xl"
                   />
                 </div>
                 <Button onClick={handleAddItem} className="w-full rounded-xl gap-2">
