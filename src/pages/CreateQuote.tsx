@@ -185,13 +185,9 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                   disabled={isEditing}
                 >
                   <SelectTrigger id="client-select" className="rounded-xl">
-                    <SelectValue placeholder="Scegli un cliente..." />
+                    <SelectValue placeholder={clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."} />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* Aggiunto un SelectItem predefinito per gestire lo stato iniziale e i clienti vuoti */}
-                    <SelectItem value="" disabled={clients.length > 0}>
-                      {clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."}
-                    </SelectItem>
                     {clients.map(client => (
                       <SelectItem key={client.id} value={client.id}>
                         {client.name}
@@ -220,7 +216,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                         <SelectValue placeholder="Scegli un servizio..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Scegli un servizio...</SelectItem>
+                        <SelectItem value="custom-service">Servizio Personalizzato</SelectItem> {/* Added a valid item for custom service */}
                         {services.map(service => (
                           <SelectItem key={service.id} value={service.id}>
                             {service.name} (€{service.price.toFixed(2)})
