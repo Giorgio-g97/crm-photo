@@ -240,7 +240,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                       <SelectContent>
                         <SelectItem value={SERVICE_PLACEHOLDER_VALUE}>Scegli un servizio...</SelectItem>
                         <SelectItem value={CUSTOM_SERVICE_VALUE}>Servizio Personalizzato</SelectItem>
-                        {services.map(service => (
+                        {services.filter(service => service.id && service.id.trim() !== '').map(service => (
                           <SelectItem key={service.id} value={service.id}>
                             {service.name} (€{service.price.toFixed(2)})
                           </SelectItem>

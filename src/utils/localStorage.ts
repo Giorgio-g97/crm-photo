@@ -34,10 +34,21 @@ export interface Quote {
   timestamp: string;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  status: "planning" | "in-progress" | "completed";
+  budget: number;
+  clientId?: string;
+  description?: string;
+  timestamp: string;
+}
+
 const STORAGE_KEYS = {
   CLIENTS: "crm_clients",
   SERVICES: "crm_services",
   QUOTES: "crm_quotes",
+  PROJECTS: "crm_projects",
 };
 
 // --- Clients ---
@@ -78,6 +89,12 @@ export const updateClient = (updatedClient: Client): Client => {
 export const getClientById = (id: string): Client | undefined => {
   const clients = getClients();
   return clients.find((client) => client.id === id);
+};
+
+export const deleteClient = (id: string) => {
+  const clients = getClients();
+  const filteredClients = clients.filter((c) => c.id !== id);
+  saveClients(filteredClients);
 };
 
 // --- Services ---
@@ -170,4 +187,45 @@ export const deleteQuote = (id: string) => {
   const quotes = getQuotes();
   const filteredQuotes = quotes.filter((q) => q.id !== id);
   saveQuotes(filteredQuotes);
+};
+
+// --- Projects ---
+export const getProjects = (): Project[] => {
+  if (typeof window === "undefined") return [];
+  const projects = localStorage.getItem(STORAGE_KEYS.PROJECTS);
+  return projects ? JSON.parse(projects) : [];
+};
+
+export const saveProjects = (projects: Project[]) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects));
+};
+
+export const addProject = (project: Omit<Project, "id" | "timestamp">): Project => {
+  const projects = getProjects();
+  const newProject: Project = {
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+    ...project,
+  };
+  projects.push(newProject);
+  saveProjects(projects);
+  return newProject;
+};
+
+export const updateProject = (updatedProject: Project): Project => {
+  const projects = getProjects();
+  const index = projects.findIndex((p) => p.id === updatedProject.id);
+  if (index > -1) {
+    projects[index] = { ...updatedProject, timestamp: new Date().toISOString() };
+    saveProjects(projects);
+    return projects[index];
+  }
+  throw new Error("Project not found for update.");
+};
+
+export const deleteProject = (id: string) => {
+  const projects = getProjects();
+  const filteredProjects = projects.filter((p) => p.id !== id);
+  saveProjects(filteredProjects);
 };

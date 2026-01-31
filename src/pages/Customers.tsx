@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getClients, updateClient, Client } from "@/utils/localStorage";
+import { getClients, updateClient, deleteClient, Client } from "@/utils/localStorage";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { showSuccess, showError } from "@/utils/toast";
-import { Pencil, FileText } from "lucide-react";
+import { Pencil, FileText, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Customers = () => {
@@ -41,6 +41,18 @@ const Customers = () => {
         showSuccess("Cliente aggiornato con successo!");
       } catch (error) {
         showError("Errore durante l'aggiornamento.");
+      }
+    }
+  };
+
+  const handleDeleteClient = (client: Client) => {
+    if (window.confirm(`Sei sicuro di voler eliminare il cliente "${client.name}"? Questa azione è irreversibile.`)) {
+      try {
+        deleteClient(client.id);
+        setClients(getClients());
+        showSuccess("Cliente eliminato con successo!");
+      } catch (error) {
+        showError("Errore durante l'eliminazione del cliente.");
       }
     }
   };
@@ -95,6 +107,14 @@ const Customers = () => {
                   className="rounded-full h-9 w-9 hover:bg-primary/10 text-primary flex-shrink-0"
                 >
                   <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDeleteClient(client)}
+                  className="rounded-full h-9 w-9 hover:bg-destructive/10 text-destructive flex-shrink-0"
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
