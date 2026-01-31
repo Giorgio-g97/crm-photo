@@ -10,6 +10,7 @@ import {
   Settings 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SheetClose } from "@/components/ui/sheet"; // Importiamo SheetClose
 
 interface SidebarProps {
   onLinkClick?: () => void;
@@ -45,24 +46,25 @@ const navItems = [
 
 const Sidebar: React.FC<SidebarProps> = ({ onLinkClick }) => {
   return (
-    <nav className="flex-1 space-y-1">
+    <nav className="flex-1 space-y-1 p-4">
       {navItems.map((item) => (
-        <NavLink
-          key={item.name}
-          to={item.path}
-          onClick={onLinkClick}
-          className={({ isActive }) =>
-            cn(
-              "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200",
-              isActive 
-                ? "bg-primary text-primary-foreground shadow-md" 
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-            )
-          }
-        >
-          <item.icon className="h-5 w-5" />
-          <span>{item.name}</span>
-        </NavLink>
+        <SheetClose asChild key={item.name}>
+          <NavLink
+            to={item.path}
+            onClick={onLinkClick}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                isActive 
+                  ? "bg-primary text-primary-foreground shadow-md" 
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              )
+            }
+          >
+            <item.icon className="h-5 w-5" />
+            <span>{item.name}</span>
+          </NavLink>
+        </SheetClose>
       ))}
     </nav>
   );
