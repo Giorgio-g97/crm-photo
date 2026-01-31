@@ -62,11 +62,12 @@ const Dashboard = () => {
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto overflow-hidden">
             <code className="bg-background px-4 py-2 rounded-lg border text-sm font-mono w-full sm:w-auto text-center break-all">
-              {window.location.origin}/public-form
+              {window.location.origin + window.location.pathname + (window.location.pathname.endsWith('/') ? '' : '/') + "#/publicform"}
             </code>
             <button
               onClick={() => {
-                navigator.clipboard.writeText(`${window.location.origin}/public-form`);
+                const publicLink = window.location.origin + window.location.pathname + (window.location.pathname.endsWith('/') ? '' : '/') + "#/publicform";
+                navigator.clipboard.writeText(publicLink);
                 alert("Link copiato negli appunti!");
               }}
               className="bg-primary text-primary-foreground px-6 py-2 rounded-xl font-semibold hover:bg-primary/90 transition-colors w-full sm:w-auto"

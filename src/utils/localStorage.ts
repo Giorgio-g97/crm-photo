@@ -1,5 +1,13 @@
 "use client";
 
+// Fallback for crypto.randomUUID if not available (e.g. non-secure context)
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
 export interface Client {
   id: string;
   name: string;
@@ -66,9 +74,9 @@ export const saveClients = (clients: Client[]) => {
 export const addClient = (client: Omit<Client, "id" | "timestamp">): Client => {
   const clients = getClients();
   const newClient: Client = {
-    id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
     ...client,
+    id: generateId(),
+    timestamp: new Date().toISOString(),
   };
   clients.push(newClient);
   saveClients(clients);
@@ -112,8 +120,8 @@ export const saveServices = (services: Service[]) => {
 export const addService = (service: Omit<Service, "id">): Service => {
   const services = getServices();
   const newService: Service = {
-    id: crypto.randomUUID(),
     ...service,
+    id: generateId(),
   };
   services.push(newService);
   saveServices(services);
@@ -157,9 +165,9 @@ export const getQuoteById = (id: string): Quote | undefined => {
 export const addQuote = (quote: Omit<Quote, "id" | "timestamp">): Quote => {
   const quotes = getQuotes();
   const newQuote: Quote = {
-    id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
     ...quote,
+    id: generateId(),
+    timestamp: new Date().toISOString(),
   };
   quotes.push(newQuote);
   saveQuotes(quotes);
@@ -204,9 +212,9 @@ export const saveProjects = (projects: Project[]) => {
 export const addProject = (project: Omit<Project, "id" | "timestamp">): Project => {
   const projects = getProjects();
   const newProject: Project = {
-    id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
     ...project,
+    id: generateId(),
+    timestamp: new Date().toISOString(),
   };
   projects.push(newProject);
   saveProjects(projects);
@@ -228,4 +236,36 @@ export const deleteProject = (id: string) => {
   const projects = getProjects();
   const filteredProjects = projects.filter((p) => p.id !== id);
   saveProjects(filteredProjects);
+};
+
+// --- Global Repair Logic ---
+export const repairData = () => {
+  if (typeof window === "undefined") return;
+
+  const repairCollection = <T extends { id: string }>(key: string, name: string) => {
+    const data = localStorage.getItem(key);
+    if (!data) return;
+    try {
+      const items: T[] = JSON.parse(data);
+      let changed = false;
+      const repaired = items.map(item => {
+        if (!item.id || item.id.trim() === "") {
+          changed = true;
+          return { ...item, id: generateId() };
+        }
+        return item;
+      });
+      if (changed) {
+        localStorage.setItem(key, JSON.stringify(repaired));
+        console.log(`[CRM] Repaired IDs in ${name}`);
+      }
+    } catch (e) {
+      console.error(`[CRM] Failed to repair ${name}:`, e);
+    }
+  };
+
+  repairCollection("crm_clients", "Clients");
+  repairCollection("crm_services", "Services");
+  repairCollection("crm_quotes", "Quotes");
+  repairCollection("crm_projects", "Projects");
 };

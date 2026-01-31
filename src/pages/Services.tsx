@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getServices, addService, updateService, deleteService, Service } from "@/utils/localStorage";
+import { getServices, saveServices, addService, updateService, deleteService, Service } from "@/utils/localStorage";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,7 +17,19 @@ const Services = () => {
   const [isAddingNew, setIsAddingNew] = useState(false);
 
   useEffect(() => {
-    setServices(getServices());
+    const loadedServices = getServices();
+    // Repair logic: if any service is missing an ID, generate one and save back
+    const needsRepair = loadedServices.some(s => !s.id);
+    if (needsRepair) {
+      const repairedServices = loadedServices.map(s => ({
+        ...s,
+        id: s.id || (Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15))
+      }));
+      saveServices(repairedServices);
+      setServices(repairedServices);
+    } else {
+      setServices(loadedServices);
+    }
   }, []);
 
   const handleAddClick = () => {

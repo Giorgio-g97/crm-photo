@@ -211,7 +211,7 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                       {clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."}
                     </SelectItem>
                     {clients.map(client => (
-                      <SelectItem key={client.id} value={client.id}>
+                      <SelectItem key={client.id} value={client.id || `unknown-client-${client.name}`}>
                         {client.name}
                       </SelectItem>
                     ))}
@@ -240,8 +240,8 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                       <SelectContent>
                         <SelectItem value={SERVICE_PLACEHOLDER_VALUE}>Scegli un servizio...</SelectItem>
                         <SelectItem value={CUSTOM_SERVICE_VALUE}>Servizio Personalizzato</SelectItem>
-                        {services.filter(service => service.id && service.id.trim() !== '').map(service => (
-                          <SelectItem key={service.id} value={service.id}>
+                        {services.map((service, idx) => (
+                          <SelectItem key={service.id || `service-${idx}`} value={service.id || `unknown-service-${idx}`}>
                             {service.name} (€{service.price.toFixed(2)})
                           </SelectItem>
                         ))}
