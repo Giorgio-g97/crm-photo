@@ -9,6 +9,7 @@ export default defineConfig(() => ({
     port: 8080,
   },
   plugins: [dyadComponentTagger(), react()],
+  base: '/crm-photo'
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
