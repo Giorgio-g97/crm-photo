@@ -21,7 +21,8 @@ export interface QuoteItem {
   serviceId: string;
   name: string;
   description: string;
-  price: number;
+  price: number; // Price per unit
+  quantity: number; // New field
 }
 
 export interface Quote {
@@ -131,6 +132,11 @@ export const saveQuotes = (quotes: Quote[]) => {
   localStorage.setItem(STORAGE_KEYS.QUOTES, JSON.stringify(quotes));
 };
 
+export const getQuoteById = (id: string): Quote | undefined => {
+  const quotes = getQuotes();
+  return quotes.find((quote) => quote.id === id);
+};
+
 export const addQuote = (quote: Omit<Quote, "id" | "timestamp">): Quote => {
   const quotes = getQuotes();
   const newQuote: Quote = {
@@ -141,6 +147,18 @@ export const addQuote = (quote: Omit<Quote, "id" | "timestamp">): Quote => {
   quotes.push(newQuote);
   saveQuotes(quotes);
   return newQuote;
+};
+
+export const updateQuote = (updatedQuote: Quote): Quote => {
+  const quotes = getQuotes();
+  const index = quotes.findIndex((q) => q.id === updatedQuote.id);
+  if (index > -1) {
+    // Preserve original timestamp if not provided, but since we are updating, let's update it.
+    quotes[index] = { ...updatedQuote, timestamp: new Date().toISOString() };
+    saveQuotes(quotes);
+    return quotes[index];
+  }
+  throw new Error("Quote not found for update.");
 };
 
 export const getQuotesByClientId = (clientId: string): Quote[] => {

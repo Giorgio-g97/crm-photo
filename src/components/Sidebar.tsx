@@ -24,9 +24,9 @@ const Sidebar = () => {
       path: "/customers",
     },
     {
-      name: "Trattative",
+      name: "Progetti", // Updated name
       icon: Briefcase,
-      path: "/deals",
+      path: "/projects", // Updated path
     },
     {
       name: "Preventivi",

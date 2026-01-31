@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
-import Deals from "./pages/Deals";
+import Projects from "./pages/Projects"; // Renamed import
 import PublicForm from "./pages/PublicForm";
 import Services from "./pages/Services";
 import Quotes from "./pages/Quotes";
@@ -28,10 +28,11 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customers" element={<Customers />} />
-            <Route path="/deals" element={<Deals />} />
+            <Route path="/projects" element={<Projects />} /> {/* Updated path */}
             <Route path="/services" element={<Services />} />
             <Route path="/quotes" element={<Quotes />} />
             <Route path="/quotes/new" element={<CreateQuote />} />
+            <Route path="/quotes/edit/:quoteId" element={<CreateQuote isEditing={true} />} /> {/* New edit route */}
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

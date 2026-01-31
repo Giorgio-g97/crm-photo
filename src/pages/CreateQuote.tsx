@@ -1,30 +1,33 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { getClients, getServices, addQuote, Client, Service } from "@/utils/localStorage";
+import React, { useState, useEffect, useMemo } from "react";
+import { getClients, getServices, addQuote, updateQuote, getQuoteById, Client, Service, QuoteItem, Quote } from "@/utils/localStorage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Save, Plus, Trash2, Edit } from "lucide-react";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
 
-interface QuoteItem {
-  serviceId: string;
-  name: string;
-  description: string;
-  price: number;
+// IVA rate (22% standard in Italy)
+const IVA_RATE = 0.22;
+
+interface CreateQuoteProps {
+  isEditing?: boolean;
 }
 
-const CreateQuote = () => {
+const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { quoteId } = useParams<{ quoteId: string }>();
+
   const [clients, setClients] = useState<Client[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [selectedClientId, setSelectedClientId] = useState("");
   const [items, setItems] = useState<QuoteItem[]>([]);
-  const [newItem, setNewItem] = useState({ serviceId: "", name: "", description: "", price: 0 });
+  const [newItem, setNewItem] = useState({ serviceId: "", name: "", description: "", price: 0, quantity: 1 });
+  const [existingQuote, setExistingQuote] = useState<Quote | null>(null);
 
   useEffect(() => {
     const allClients = getClients() || [];
@@ -39,14 +42,46 @@ const CreateQuote = () => {
       setSelectedClientId(clientIdParam);
     }
 
-    if (duplicateIdParam) {
-      showSuccess("Modalità duplicazione attivata");
+    if (isEditing && quoteId) {
+      const quoteToEdit = getQuoteById(quoteId);
+      if (quoteToEdit) {
+        setExistingQuote(quoteToEdit);
+        setSelectedClientId(quoteToEdit.clientId);
+        setItems(quoteToEdit.items);
+      } else {
+        showError("Preventivo non trovato.");
+        navigate("/quotes");
+      }
+    } else if (duplicateIdParam) {
+      const quoteToDuplicate = getQuoteById(duplicateIdParam);
+      if (quoteToDuplicate) {
+        setSelectedClientId(quoteToDuplicate.clientId);
+        setItems(quoteToDuplicate.items);
+        showSuccess("Modalità duplicazione attivata");
+      } else {
+        showError("Preventivo originale non trovato.");
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isEditing, quoteId, navigate]);
+
+  const handleServiceSelect = (serviceId: string) => {
+    const service = services.find(s => s.id === serviceId);
+    if (service) {
+      setNewItem({
+        serviceId: service.id,
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        quantity: 1,
+      });
+    } else {
+      setNewItem({ serviceId: "", name: "", description: "", price: 0, quantity: 1 });
+    }
+  };
 
   const handleAddItem = () => {
-    if (!newItem.name || newItem.price <= 0) {
-      showError("Compila nome e prezzo del servizio");
+    if (!newItem.name || newItem.price <= 0 || newItem.quantity <= 0) {
+      showError("Compila nome, prezzo e quantità validi.");
       return;
     }
 
@@ -54,11 +89,12 @@ const CreateQuote = () => {
       serviceId: newItem.serviceId || crypto.randomUUID(),
       name: newItem.name,
       description: newItem.description,
-      price: newItem.price
+      price: newItem.price,
+      quantity: newItem.quantity,
     };
 
     setItems([...items, itemToAdd]);
-    setNewItem({ serviceId: "", name: "", description: "", price: 0 });
+    setNewItem({ serviceId: "", name: "", description: "", price: 0, quantity: 1 });
   };
 
   const handleRemoveItem = (index: number) => {
@@ -66,6 +102,13 @@ const CreateQuote = () => {
     newItems.splice(index, 1);
     setItems(newItems);
   };
+
+  const subtotal = useMemo(() => {
+    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  }, [items]);
+
+  const ivaAmount = subtotal * IVA_RATE;
+  const total = subtotal + ivaAmount;
 
   const handleSave = () => {
     if (!selectedClientId) {
@@ -78,16 +121,26 @@ const CreateQuote = () => {
     }
 
     const client = clients.find(c => c.id === selectedClientId);
-    const total = items.reduce((sum, item) => sum + item.price, 0);
+    if (!client) {
+      showError("Cliente non valido");
+      return;
+    }
+
+    const quoteData = {
+      clientId: selectedClientId,
+      clientName: client.name,
+      items: items,
+      total: total,
+    };
 
     try {
-      addQuote({
-        clientId: selectedClientId,
-        clientName: client?.name || "Sconosciuto",
-        items: items,
-        total: total
-      });
-      showSuccess("Preventivo creato con successo!");
+      if (isEditing && existingQuote) {
+        updateQuote({ ...existingQuote, ...quoteData, id: existingQuote.id });
+        showSuccess("Preventivo aggiornato con successo!");
+      } else {
+        addQuote(quoteData);
+        showSuccess("Preventivo creato con successo!");
+      }
       navigate("/quotes");
     } catch (e) {
       console.error("Errore salvataggio:", e);
@@ -95,13 +148,19 @@ const CreateQuote = () => {
     }
   };
 
+  const pageTitle = isEditing ? "Modifica Preventivo" : "Crea Preventivo";
+  const saveButtonText = isEditing ? "Salva Modifiche" : "Salva Preventivo";
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate("/quotes")} className="rounded-full">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-3xl font-bold">Crea Preventivo</h1>
+        <h1 className="text-3xl font-bold">{pageTitle}</h1>
+        {isEditing && existingQuote && (
+          <span className="text-sm text-muted-foreground">ID: {existingQuote.id.substring(0, 8).toUpperCase()}</span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -118,6 +177,7 @@ const CreateQuote = () => {
                   value={selectedClientId}
                   onChange={(e) => setSelectedClientId(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  disabled={isEditing} // Prevent changing client when editing existing quote
                 >
                   <option value="">Scegli un cliente...</option>
                   {clients.map(client => (
@@ -134,23 +194,13 @@ const CreateQuote = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
                     <Label htmlFor="service-select">Servizio Esistente</Label>
                     <select
                       id="service-select"
                       value={newItem.serviceId}
-                      onChange={(e) => {
-                        const service = services.find(s => s.id === e.target.value);
-                        if (service) {
-                          setNewItem({
-                            serviceId: service.id,
-                            name: service.name,
-                            description: service.description,
-                            price: service.price
-                          });
-                        }
-                      }}
+                      onChange={(e) => handleServiceSelect(e.target.value)}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                     >
                       <option value="">Scegli un servizio...</option>
@@ -160,7 +210,32 @@ const CreateQuote = () => {
                     </select>
                   </div>
                   <div>
-                    <Label htmlFor="custom-price">Prezzo Personalizzato</Label>
+                    <Label htmlFor="item-quantity">Quantità</Label>
+                    <Input
+                      id="item-quantity"
+                      type="number"
+                      min="1"
+                      value={newItem.quantity}
+                      onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value) || 1})}
+                      placeholder="1"
+                      className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="item-name">Nome Servizio</Label>
+                    <Input
+                      id="item-name"
+                      value={newItem.name}
+                      onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                      placeholder="Nome del servizio"
+                      className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="custom-price">Prezzo Unitario</Label>
                     <Input
                       id="custom-price"
                       type="number"
@@ -173,16 +248,7 @@ const CreateQuote = () => {
                     />
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="item-name">Nome Servizio</Label>
-                  <Input
-                    id="item-name"
-                    value={newItem.name}
-                    onChange={(e) => setNewItem({...newItem, name: e.target.value})}
-                    placeholder="Nome del servizio"
-                    className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                  />
-                </div>
+                
                 <div>
                   <Label htmlFor="item-description">Descrizione</Label>
                   <textarea
@@ -215,9 +281,12 @@ const CreateQuote = () => {
                       <div>
                         <p className="font-semibold">{item.name}</p>
                         <p className="text-sm text-muted-foreground">{item.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {item.quantity} x €{item.price.toFixed(2)}
+                        </p>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="font-bold">€ {item.price.toFixed(2)}</p>
+                        <p className="font-bold">€ {(item.price * item.quantity).toFixed(2)}</p>
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -240,22 +309,26 @@ const CreateQuote = () => {
             <CardHeader>
               <CardTitle>Riepilogo</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <div className="flex justify-between items-end">
                 <span>Imponibile</span>
-                <span className="text-xl">€ {items.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</span>
+                <span className="text-xl">€ {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-end border-t border-primary-foreground/20 pt-2">
+                <span>IVA ({IVA_RATE * 100}%)</span>
+                <span className="text-xl">€ {ivaAmount.toFixed(2)}</span>
               </div>
               <div className="pt-4 border-t border-primary-foreground/20">
                 <div className="flex justify-between items-end font-bold text-3xl">
                   <span>Totale</span>
-                  <span>€ {items.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</span>
+                  <span>€ {total.toFixed(2)}</span>
                 </div>
               </div>
               <Button 
                 onClick={handleSave} 
                 className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl py-6 text-lg font-bold"
               >
-                <Save className="mr-2 h-5 w-5" /> Salva Preventivo
+                {isEditing ? <Edit className="mr-2 h-5 w-5" /> : <Save className="mr-2 h-5 w-5" />} {saveButtonText}
               </Button>
             </CardContent>
           </Card>

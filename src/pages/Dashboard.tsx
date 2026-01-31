@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   return (
@@ -10,18 +11,27 @@ const Dashboard = () => {
         Benvenuto nella tua dashboard CRM. Qui potrai visualizzare una panoramica delle tue attività.
       </p>
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-secondary p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Clienti Totali</h2>
-          <p className="text-4xl font-bold text-primary">120</p>
-        </div>
-        <div className="bg-secondary p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Trattative Aperte</h2>
-          <p className="text-4xl font-bold text-primary">35</p>
-        </div>
-        <div className="bg-secondary p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Ricavi Mese</h2>
-          <p className="text-4xl font-bold text-primary">€15.000</p>
-        </div>
+        
+        <Link to="/customers" className="block">
+          <div className="bg-secondary p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+            <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Clienti Totali</h2>
+            <p className="text-4xl font-bold text-primary">120</p>
+          </div>
+        </Link>
+
+        <Link to="/projects" className="block">
+          <div className="bg-secondary p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+            <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Progetti Aperti</h2>
+            <p className="text-4xl font-bold text-primary">35</p>
+          </div>
+        </Link>
+
+        <Link to="/quotes" className="block">
+          <div className="bg-secondary p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+            <h2 className="text-2xl font-semibold text-secondary-foreground mb-3">Ricavi Mese (Stima Preventivi)</h2>
+            <p className="text-4xl font-bold text-primary">€15.000</p>
+          </div>
+        </Link>
       </div>
     </div>
   );
