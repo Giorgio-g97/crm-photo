@@ -32,37 +32,42 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
   const [existingQuote, setExistingQuote] = useState<Quote | null>(null);
 
   useEffect(() => {
-    const allClients = getClients() || [];
-    const allServices = getServices() || [];
-    setClients(allClients);
-    setServices(allServices);
+    try {
+      const allClients = getClients() || [];
+      const allServices = getServices() || [];
+      setClients(allClients);
+      setServices(allServices);
 
-    const clientIdParam = searchParams.get("clientId");
-    const duplicateIdParam = searchParams.get("duplicateId");
+      const clientIdParam = searchParams.get("clientId");
+      const duplicateIdParam = searchParams.get("duplicateId");
 
-    if (clientIdParam) {
-      setSelectedClientId(clientIdParam);
-    }
-
-    if (isEditing && quoteId) {
-      const quoteToEdit = getQuoteById(quoteId);
-      if (quoteToEdit) {
-        setExistingQuote(quoteToEdit);
-        setSelectedClientId(quoteToEdit.clientId);
-        setItems(quoteToEdit.items);
-      } else {
-        showError("Preventivo non trovato.");
-        navigate("/quotes");
+      if (clientIdParam) {
+        setSelectedClientId(clientIdParam);
       }
-    } else if (duplicateIdParam) {
-      const quoteToDuplicate = getQuoteById(duplicateIdParam);
-      if (quoteToDuplicate) {
-        setSelectedClientId(quoteToDuplicate.clientId);
-        setItems(quoteToDuplicate.items);
-        showSuccess("Modalità duplicazione attivata");
-      } else {
-        showError("Preventivo originale non trovato.");
+
+      if (isEditing && quoteId) {
+        const quoteToEdit = getQuoteById(quoteId);
+        if (quoteToEdit) {
+          setExistingQuote(quoteToEdit);
+          setSelectedClientId(quoteToEdit.clientId);
+          setItems(quoteToEdit.items);
+        } else {
+          showError("Preventivo non trovato.");
+          navigate("/quotes");
+        }
+      } else if (duplicateIdParam) {
+        const quoteToDuplicate = getQuoteById(duplicateIdParam);
+        if (quoteToDuplicate) {
+          setSelectedClientId(quoteToDuplicate.clientId);
+          setItems(quoteToDuplicate.items);
+          showSuccess("Modalità duplicazione attivata");
+        } else {
+          showError("Preventivo originale non trovato.");
+        }
       }
+    } catch (error) {
+      console.error("Error in CreateQuote useEffect:", error);
+      showError("Si è verificato un errore durante il caricamento dei dati.");
     }
   }, [searchParams, isEditing, quoteId, navigate]);
 
@@ -183,6 +188,10 @@ const CreateQuote: React.FC<CreateQuoteProps> = ({ isEditing = false }) => {
                     <SelectValue placeholder="Scegli un cliente..." />
                   </SelectTrigger>
                   <SelectContent>
+                    {/* Aggiunto un SelectItem predefinito per gestire lo stato iniziale e i clienti vuoti */}
+                    <SelectItem value="" disabled={clients.length > 0}>
+                      {clients.length === 0 ? "Nessun cliente disponibile" : "Seleziona un cliente..."}
+                    </SelectItem>
                     {clients.map(client => (
                       <SelectItem key={client.id} value={client.id}>
                         {client.name}
